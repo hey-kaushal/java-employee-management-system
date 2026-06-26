@@ -1,0 +1,32 @@
+// ============================================================
+//  app.js – Shared utilities: toast, auth guard, admin name
+// ============================================================
+
+function showToast(msg, duration = 2800) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
+// Set admin name in sidebar / topbar
+window.addEventListener('DOMContentLoaded', () => {
+  const adminName = localStorage.getItem('ems_admin') || 'Admin';
+  ['admin-name', 'topbar-user'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = adminName.charAt(0).toUpperCase() + adminName.slice(1);
+  });
+
+  // Auth guard
+  const pathname = window.location.pathname;
+  const isLoginPage = pathname === '/' || pathname.endsWith('/index.html') || pathname.endsWith('/ems/');
+
+  if (isLoginPage) {
+    if (localStorage.getItem('ems_logged_in') === 'true') {
+      window.location.href = '/pages/dashboard.html';
+    }
+  } else {
+    requireAuth();
+  }
+});

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EMS – Employees</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-icon">🏢</span>
+    <span class="brand-name">EMS</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+    <a href="employees.html" class="nav-link active">👥 Employees</a>
+    <a href="add-employee.html" class="nav-link">➕ Add Employee</a>
+    <a href="departments.html" class="nav-link">🏗️ Departments</a>
+  </nav>
+  <div class="sidebar-footer">
+    <span id="admin-name">Admin</span>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="topbar">
+    <div class="topbar-title">Employee List</div>
+    <a href="add-employee.html" class="btn btn-primary">+ Add Employee</a>
+  </div>
+
+  <div class="page-content">
+    <div class="card">
+      <!-- Search & Filter Toolbar -->
+      <div class="toolbar">
+        <input type="text" id="search-input" class="search-input" placeholder="🔍 Search by name, email, role…" oninput="filterEmployees()"/>
+        <select id="dept-filter" onchange="filterEmployees()">
+          <option value="">All Departments</option>
+        </select>
+        <select id="status-filter" onchange="filterEmployees()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <span id="result-count" class="result-count"></span>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper">
+        <table class="table" id="emp-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Role</th>
+              <th>Salary</th>
+              <th>Joined</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="emp-tbody"></tbody>
+        </table>
+      </div>
+      <div id="no-results" class="no-results" style="display:none;">No employees found.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div id="delete-modal" class="modal-backdrop" style="display:none;">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>⚠️ Confirm Delete</h3>
+    </div>
+    <p style="margin:12px 0 20px;">Are you sure you want to delete <strong id="del-emp-name"></strong>? This cannot be undone.</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/employees.js"></script>
+</body>
+</html>
