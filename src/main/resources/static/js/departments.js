@@ -1,11 +1,14 @@
 // ============================================================
-//  departments.js – Department CRUD
+//  departments.js – Department CRUD (API backed)
 // ============================================================
 
 let deptEditId   = null;
 let deptDeleteId = null;
 
-window.addEventListener('DOMContentLoaded', renderDeptGrid);
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadAllData();
+  renderDeptGrid();
+});
 
 function renderDeptGrid() {
   const grid = document.getElementById('dept-grid');
@@ -60,7 +63,7 @@ function closeDeptModal() {
   document.getElementById('dept-modal').style.display = 'none';
 }
 
-function saveDept() {
+async function saveDept() {
   const name = document.getElementById('dept-name-input').value.trim();
   const icon = document.getElementById('dept-icon-input').value.trim() || '🏢';
   const desc = document.getElementById('dept-desc-input').value.trim();
@@ -68,10 +71,10 @@ function saveDept() {
   if (!name) { alert('Department name is required.'); return; }
 
   if (deptEditId) {
-    updateDepartment({ id: deptEditId, name, icon, desc });
+    await updateDepartment({ id: deptEditId, name, icon, desc });
     showToast('Department updated.');
   } else {
-    addDepartment({ name, icon, desc });
+    await addDepartment({ name, icon, desc });
     showToast('Department added.');
   }
   closeDeptModal();
@@ -85,19 +88,6 @@ function openDelDeptModal(id, name) {
   document.getElementById('del-dept-modal').style.display = 'flex';
 }
 
-function closeDelDeptModal() {
-  deptDeleteId = null;
-  document.getElementById('del-dept-modal').style.display = 'none';
-}
-
-function confirmDelDept() {
-  if (!deptDeleteId) return;
-  deleteDepartment(deptDeleteId);
-  closeDelDeptModal();
-  renderDeptGrid();
-  showToast('Department deleted.');
-}
-
 // Close modals on backdrop click
 document.addEventListener('click', e => {
   const deptModal = document.getElementById('dept-modal');
@@ -105,3 +95,16 @@ document.addEventListener('click', e => {
   if (e.target === deptModal)  closeDeptModal();
   if (e.target === delModal)   closeDelDeptModal();
 });
+
+function closeDelDeptModal() {
+  deptDeleteId = null;
+  document.getElementById('del-dept-modal').style.display = 'none';
+}
+
+async function confirmDelDept() {
+  if (!deptDeleteId) return;
+  await deleteDepartment(deptDeleteId);
+  closeDelDeptModal();
+  renderDeptGrid();
+  showToast('Department deleted.');
+}

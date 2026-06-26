@@ -1,10 +1,11 @@
 // ============================================================
-//  employees.js – Employee list, search, filter, delete
+//  employees.js – Employee list, search, filter, delete (API backed)
 // ============================================================
 
 let deleteTargetId = null;
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadAllData();
   populateDeptFilter();
   renderTable();
 });
@@ -96,9 +97,9 @@ function closeDeleteModal() {
   document.getElementById('delete-modal').style.display = 'none';
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   if (deleteTargetId == null) return;
-  deleteEmployee(deleteTargetId);
+  await deleteEmployee(deleteTargetId);
   closeDeleteModal();
   renderTable();
   showToast('Employee deleted successfully.');

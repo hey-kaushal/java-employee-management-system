@@ -1,25 +1,31 @@
 // ============================================================
-//  auth.js – Login / Logout / Session Guard
+//  auth.js – Login / Logout / Session Guard (API backed)
 // ============================================================
 
-const ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
-
-function doLogin() {
+async function doLogin() {
   const user = document.getElementById('username').value.trim();
   const pass = document.getElementById('password').value.trim();
-  const errEl = document.getElementById('login-error');
 
   if (!user || !pass) {
     showLoginError('Please enter both username and password.');
     return;
   }
 
-  if (user === ADMIN_CREDENTIALS.username && pass === ADMIN_CREDENTIALS.password) {
-    localStorage.setItem('ems_logged_in', 'true');
-    localStorage.setItem('ems_admin', user);
-    window.location.href = '/pages/dashboard.html';
-  } else {
-    showLoginError('Invalid credentials. Use admin / admin123');
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: user, password: pass })
+    });
+    if (res.ok) {
+      localStorage.setItem('ems_logged_in', 'true');
+      localStorage.setItem('ems_admin', user);
+      window.location.href = '/pages/dashboard.html';
+    } else {
+      showLoginError('Invalid credentials. Use admin / admin123');
+    }
+  } catch (err) {
+    showLoginError('Error connecting to authentication server.');
   }
 }
 
@@ -28,7 +34,12 @@ function showLoginError(msg) {
   if (el) { el.textContent = msg; el.style.display = 'block'; }
 }
 
-function logout() {
+async function logout() {
+  try {
+    await fetch('/api/auth/logout', { method: 'POST' });
+  } catch (err) {
+    console.error("Logout request failed", err);
+  }
   localStorage.removeItem('ems_logged_in');
   localStorage.removeItem('ems_admin');
   window.location.href = '/index.html';

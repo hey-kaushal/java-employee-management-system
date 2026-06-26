@@ -1,8 +1,9 @@
 // ============================================================
-//  dashboard.js – Dashboard metrics, chart, recent table
+//  dashboard.js – Dashboard metrics, chart, recent table (API backed)
 // ============================================================
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadAllData();
   renderMetrics();
   renderDeptChart();
   renderRecentTable();

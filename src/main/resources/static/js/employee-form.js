@@ -1,10 +1,11 @@
 // ============================================================
-//  employee-form.js – Add & Edit employee (shared form page)
+//  employee-form.js – Add & Edit employee (shared form page, API backed)
 // ============================================================
 
 let editingId = null;
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadAllData();
   populateDeptDropdown();
   setDefaultJoinDate();
 
@@ -63,7 +64,7 @@ function setValue(id, val) {
   if (el) el.value = val || '';
 }
 
-function saveEmployee() {
+async function saveEmployee() {
   // Collect values
   const name   = document.getElementById('f-name').value.trim();
   const email  = document.getElementById('f-email').value.trim();
@@ -95,10 +96,10 @@ function saveEmployee() {
 
   if (editingId) {
     empData.id = editingId;
-    updateEmployee(empData);
+    await updateEmployee(empData);
     showToast('Employee updated successfully!');
   } else {
-    addEmployee(empData);
+    await addEmployee(empData);
     showToast('Employee added successfully!');
     // Reset form
     ['f-name','f-email','f-phone','f-role','f-salary'].forEach(id => {
