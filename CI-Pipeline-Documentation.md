@@ -234,53 +234,297 @@ npm install -g snyk
 snyk auth
 ```
 
+# 🚀 Jenkins CI/CD Pipeline
+
+# Prerequisites
+
+Before creating the pipeline, install the following on the Jenkins server:
+
+- Java 21
+- Git
+- Maven
+- Docker
+- GitLeaks
+- Trivy
+- Snyk CLI
+- Jenkins
+
 ---
 
-# 🔧 Jenkins Configuration
+# Required Jenkins Plugins
+
+Go to:
+
+```
+Manage Jenkins
+    └── Plugins
+```
+
+Install the following plugins:
+
+| Plugin | Purpose |
+|---------|----------|
+| Git | Clone source code from GitHub |
+| Pipeline | Create CI/CD Pipelines |
+| Maven Integration | Build Maven projects |
+| Docker | Docker support |
+| Docker Pipeline | Execute Docker commands |
+| SonarQube Scanner | Perform code quality analysis |
+| Credentials Binding | Securely use credentials |
+| Config File Provider | Manage Maven settings.xml |
+| HTML Publisher *(Optional)* | Publish Trivy HTML Reports |
+
+view pipline stage
+
+Restart Jenkins after installing the plugins.
+
+---
+
+# Global Tool Configuration
+
+Go to:
+
+```
+Manage Jenkins
+    └── Tools
+```
+
+Configure the following:
+
+## JDK
+
+| Name | Value |
+|------|-------|
+| java21 | OpenJDK 21 |
+
+---
+
+## Maven
+
+| Name | Value |
+|------|-------|
+| maven | Maven 3.x |
+
+---
+
+## Git
+
+Configure Git if it is not detected automatically.
+
+---
+
+## SonarQube Scanner
+
+| Name |
+|------|
+| sonarscanner |
+
+---
+
+# SonarQube Server Configuration
+
+Go to:
+
+```
+Manage Jenkins
+    └── System
+```
+
+Locate **SonarQube Servers**.
 
 Configure:
 
-- JDK 21
-- Maven
-- Git
-- SonarQube Server
-- Docker
-- GitHub Credentials
-- Docker Hub Credentials
-- Snyk Token
-- Nexus Credentials
-
-Required Plugins:
-
-- Git
-- Pipeline
-- Maven Integration
-- Docker
-- Docker Pipeline
-- SonarQube Scanner
-- Credentials Binding
-- Config File Provider
+| Field | Value |
+|-------|-------|
+| Name | sonarserver |
+| Server URL | http://<SONAR_VM_IP>:9000 |
+| Authentication Token | Sonar Token Credential |
 
 ---
 
-# 🚀 Pipeline Stages
+# Jenkins Credentials
+
+Go to:
+
+```
+Manage Jenkins
+    └── Credentials
+        └── System
+            └── Global Credentials
+```
+
+Add the following credentials.
+
+## Docker Hub
+
+| Field | Value |
+|-------|-------|
+| Kind | Username with Password |
+| ID | dockerhub |
+| Username | Docker Hub Username |
+| Password | Docker Hub Password |
+
+---
+
+## SonarQube Token
+
+| Field | Value |
+|-------|-------|
+| Kind | Secret Text |
+| ID | sonar-token |
+| Secret | SonarQube Generated Token |
+
+---
+
+## Nexus Repository
+
+| Field | Value |
+|-------|-------|
+| Kind | Username with Password |
+| ID | nexus |
+| Username | admin |
+| Password | Nexus Password |
+
+---
+
+## Snyk
+
+| Field | Value |
+|-------|-------|
+| Kind | Secret Text |
+| ID | snyk-token |
+| Secret | Snyk API Token |
+
+---
+
+# Maven Settings
+
+Go to:
+
+```
+Manage Jenkins
+    └── Managed Files
+```
+
+Create a new **Maven settings.xml** configuration.
+
+Configuration ID:
+
+```
+maven-setting-json-file
+```
+
+Configure the Nexus server credentials inside the settings.xml file.
+
+---
+
+# Creating the Pipeline
+
+1. Open Jenkins Dashboard.
+2. Click **New Item**.
+3. Enter the project name.
+4. Select **Pipeline**.
+5. Click **OK**.
+
+---
+
+# Pipeline Configuration
+
+Scroll to the **Pipeline** section.
+
+Choose:
+
+```
+Pipeline script from SCM
+```
+
+Configure:
+
+| Field | Value |
+|-------|-------|
+| SCM | Git |
+| Repository URL | https://github.com/hey-kaushal/java-employee-management-system.git |
+| Branch | main |
+| Script Path | Jenkinsfile |
+
+Click **Save**.
+
+---
+
+# Build the Pipeline
+
+Click:
+
+```
+Build Now
+```
+
+---
+
+# Pipeline Execution Flow
+
+```
+Git Checkout
+      │
+      ▼
+GitLeaks Scan
+      │
+      ▼
+Compile
+      │
+      ▼
+Unit Test
+      │
+      ▼
+SonarQube Analysis
+      │
+      ▼
+Snyk Scan
+      │
+      ▼
+Trivy File System Scan
+      │
+      ▼
+Package JAR
+      │
+      ▼
+Upload Artifact to Nexus
+      │
+      ▼
+Build Docker Image
+      │
+      ▼
+Trivy Image Scan
+      │
+      ▼
+Docker Login
+      │
+      ▼
+Push Docker Image
+      │
+      ▼
+Pipeline Completed Successfully
+```
+
+---
+
+# Pipeline Stages
 
 | Stage | Description |
 |--------|-------------|
-| Git Checkout | Clone source code |
+| Git Checkout | Clone the source code from GitHub |
 | GitLeaks | Detect hardcoded secrets |
-| Compile | Compile Java application |
-| Unit Test | Execute JUnit tests |
-| SonarQube | Analyze code quality |
-| Snyk | Scan dependencies |
-| Trivy FS | Scan project filesystem |
+| Compile | Compile the Java application |
+| Unit Test | Execute JUnit test cases |
+| SonarQube Analysis | Perform static code analysis |
+| Snyk Scan | Scan project dependencies for vulnerabilities |
+| Trivy File Scan | Scan filesystem vulnerabilities |
 | Package | Generate executable JAR |
-| Nexus | Upload artifact |
+| Nexus Upload | Upload artifact to Nexus Repository |
 | Docker Build | Build Docker image |
-| Trivy Image | Scan Docker image |
-| Docker Hub | Push image |
-
----
+| Trivy Image Scan | Scan Docker image |
+| Docker Login | Authenticate with Docker Hub |
+| Docker Push | Push Docker image to Docker Hub |
 
 # 📄 Jenkinsfile
 
