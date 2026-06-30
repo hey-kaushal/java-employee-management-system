@@ -225,9 +225,14 @@ mvn clean package
 
 ```bash
 java -jar target/employee-management-system-1.0.0.jar
+
+```
+```bash
+mvn spring-boot:run
 ```
 
 ---
+
 
 ## Access Application
 
